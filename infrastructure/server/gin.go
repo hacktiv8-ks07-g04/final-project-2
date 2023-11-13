@@ -5,6 +5,7 @@ import (
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/infrastructure/database"
 	"github.com/hacktiv8-ks07-g04/final-project-2/repository"
+	"github.com/hacktiv8-ks07-g04/final-project-2/service"
 )
 
 func Run() {
@@ -26,15 +27,19 @@ func Init() *gin.Engine {
 
 	// Users
 	usersRepo := repository.NewUsers(db)
+	usersService := service.NewUsers(usersRepo)
 
 	// Photos
 	photosRepo := repository.NewPhotos(db)
+	photosService := service.NewPhotos(photosRepo)
 
 	// Comments
 	commentsRepo := repository.NewComments(db)
+	commentsService := service.NewComments(commentsRepo)
 
 	// Social Medias
 	socialMediasRepo := repository.NewSocialMedias(db)
+	socialMediasService := service.NewSocialMedias(socialMediasRepo)
 
 	return r
 }
