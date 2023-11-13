@@ -2,6 +2,7 @@ package entity
 
 import (
 	"github.com/asaskevich/govalidator"
+	"gorm.io/gorm"
 )
 
 type Comment struct {
@@ -13,7 +14,7 @@ type Comment struct {
 	Photo   Photo  `gorm:"foreignKey:PhotoID;constraint:OnUpdate:CASCADE"`
 }
 
-func (c *Comment) BeforeCreate() error {
+func (c *Comment) BeforeCreate(tx *gorm.DB) error {
 	_, err := govalidator.ValidateStruct(c)
 	if err != nil {
 		return err

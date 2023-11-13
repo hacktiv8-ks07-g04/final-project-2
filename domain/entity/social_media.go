@@ -2,6 +2,7 @@ package entity
 
 import (
 	"github.com/asaskevich/govalidator"
+	"gorm.io/gorm"
 )
 
 type SocialMedia struct {
@@ -12,7 +13,7 @@ type SocialMedia struct {
 	User           User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE"`
 }
 
-func (sm *SocialMedia) BeforeCreate() error {
+func (sm *SocialMedia) BeforeCreate(tx *gorm.DB) error {
 	_, err := govalidator.ValidateStruct(sm)
 	if err != nil {
 		return err

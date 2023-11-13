@@ -2,6 +2,7 @@ package entity
 
 import (
 	"github.com/asaskevich/govalidator"
+	"gorm.io/gorm"
 )
 
 type Photo struct {
@@ -13,7 +14,7 @@ type Photo struct {
 	User     User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE"`
 }
 
-func (p *Photo) BeforeCreate() error {
+func (p *Photo) BeforeCreate(tx *gorm.DB) error {
 	_, err := govalidator.ValidateStruct(p)
 	if err != nil {
 		return err

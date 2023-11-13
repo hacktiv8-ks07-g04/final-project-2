@@ -2,6 +2,7 @@ package entity
 
 import (
 	"github.com/asaskevich/govalidator"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -12,7 +13,7 @@ type User struct {
 	Age      uint   `gorm:"not null; type:int"                 valid:"required, range(8|100)"`
 }
 
-func (u *User) BeforeCreate() error {
+func (u *User) BeforeCreate(tx *gorm.DB) error {
 	_, err := govalidator.ValidateStruct(u)
 	if err != nil {
 		return err
