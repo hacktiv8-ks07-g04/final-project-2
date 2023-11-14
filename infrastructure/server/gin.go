@@ -32,7 +32,7 @@ func Init() *gin.Engine {
 	usersHandler := handler.NewUsers(usersService)
 	usersRouter := r.Group("/users")
 	{
-		_, _ = usersHandler, usersRouter
+		usersRouter.POST("/register", usersHandler.Register)
 	}
 
 	// Photos

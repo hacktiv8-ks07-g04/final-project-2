@@ -3,6 +3,8 @@ package entity
 import (
 	"github.com/asaskevich/govalidator"
 	"gorm.io/gorm"
+
+	"github.com/hacktiv8-ks07-g04/final-project-2/utils"
 )
 
 type User struct {
@@ -18,6 +20,13 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+
+	// hash password
+	hashedPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = hashedPassword
 
 	return nil
 }
