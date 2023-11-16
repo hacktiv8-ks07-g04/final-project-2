@@ -19,10 +19,12 @@ func ErrorHandler() gin.HandlerFunc {
 				c.AbortWithStatusJSON(e.Code, gin.H{
 					"error": e.Message,
 				})
+				return
 			default:
 				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 					"error": err.Error(),
 				})
+				return
 			}
 		}
 	}

@@ -47,7 +47,7 @@ func ExtractToken(bearerToken string) (string, error) {
 		return "", errors.New("invalid token type")
 	}
 
-	token := strings.Split(bearerToken, "")[1]
+	token := strings.Split(bearerToken, " ")[1]
 	return token, nil
 }
 

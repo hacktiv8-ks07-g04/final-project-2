@@ -28,6 +28,17 @@ func Init() *gin.Engine {
 		})
 	})
 
+	r.GET("/auth", middleware.Authentication(), func(c *gin.Context) {
+		header := c.MustGet("user").(map[string]interface{})
+		id := header["id"]
+
+		c.JSON(200, gin.H{
+			"status": "success",
+			"header": header,
+			"id":     id,
+		})
+	}) // for auth purpose
+
 	db := database.GetInstance()
 
 	// Users
