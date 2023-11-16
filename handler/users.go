@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
+	"github.com/hacktiv8-ks07-g04/final-project-2/domain/errs"
 	"github.com/hacktiv8-ks07-g04/final-project-2/service"
 )
 
@@ -25,19 +26,15 @@ func (h *UsersImpl) Register(c *gin.Context) {
 	body := dto.RegisterRequest{}
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
-			"message": "invalid request body",
-		})
+		err := errs.New(http.StatusBadRequest, "Invalid request body!")
+		c.Error(err)
 		return
 	}
 
 	user, err := h.service.Register(&body)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"status":  "error",
-			"message": err.Error(),
-		})
+		err := errs.New(http.StatusInternalServerError, err.Error())
+		c.Error(err)
 		return
 	}
 
