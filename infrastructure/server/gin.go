@@ -37,6 +37,7 @@ func Init() *gin.Engine {
 	usersRouter := r.Group("/users")
 	{
 		usersRouter.POST("/register", usersHandler.Register)
+		usersRouter.POST("/login", usersHandler.Login)
 	}
 
 	// Photos

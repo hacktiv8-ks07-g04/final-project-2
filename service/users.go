@@ -1,13 +1,17 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
 	"github.com/hacktiv8-ks07-g04/final-project-2/repository"
+	"github.com/hacktiv8-ks07-g04/final-project-2/utils"
 )
 
 type Users interface {
 	Register(r *dto.RegisterRequest) (*entity.User, error)
+	Login(r *dto.LoginRequest) (string, error)
 }
 
 type UsersImpl struct {
@@ -32,4 +36,22 @@ func (s *UsersImpl) Register(r *dto.RegisterRequest) (*entity.User, error) {
 	}
 
 	return u, err
+}
+
+func (s *UsersImpl) Login(r *dto.LoginRequest) (string, error) {
+	user, err := s.repository.Login(r.Email)
+	if err != nil {
+		return "", errors.New("email or password is incorrect")
+	}
+
+	if err := utils.VerifyPassword(user.Password, r.Password); err != nil {
+		return "", errors.New("email or password is incorrect")
+	}
+
+	token, err := utils.GenerateToken(user.ID, user.Username, user.Email)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

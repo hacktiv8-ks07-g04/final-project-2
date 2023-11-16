@@ -12,6 +12,7 @@ import (
 
 type Users interface {
 	Register(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 type UsersImpl struct {
@@ -46,4 +47,30 @@ func (h *UsersImpl) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *UsersImpl) Login(c *gin.Context) {
+	body := dto.LoginRequest{}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		err := errs.New(http.StatusBadRequest, "Invalid request body!")
+		c.Error(err)
+		return
+	}
+
+	token, err := h.service.Login(&body)
+	if err != nil {
+		switch err.Error() {
+		case "email or password is incorrect":
+			err := errs.New(http.StatusUnauthorized, err.Error())
+			c.Error(err)
+			return
+		case "failed to generate token":
+			err := errs.New(http.StatusInternalServerError, err.Error())
+			c.Error(err)
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
