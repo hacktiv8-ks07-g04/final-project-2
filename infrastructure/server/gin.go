@@ -5,6 +5,7 @@ import (
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/handler"
 	"github.com/hacktiv8-ks07-g04/final-project-2/infrastructure/database"
+	"github.com/hacktiv8-ks07-g04/final-project-2/middleware"
 	"github.com/hacktiv8-ks07-g04/final-project-2/repository"
 	"github.com/hacktiv8-ks07-g04/final-project-2/service"
 )
@@ -16,6 +17,9 @@ func Run() {
 
 func Init() *gin.Engine {
 	r := gin.Default()
+
+	// Middleware
+	r.Use(middleware.ErrorHandler())
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
