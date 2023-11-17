@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"errors"
+
 	"github.com/asaskevich/govalidator"
 	"gorm.io/gorm"
 )
@@ -18,6 +20,12 @@ func (p *Photo) BeforeCreate(tx *gorm.DB) error {
 	_, err := govalidator.ValidateStruct(p)
 	if err != nil {
 		return err
+	}
+
+	// check user
+	var user User
+	if err := tx.Where("id = ?", p.UserID).First(&user).Error; err != nil {
+		return errors.New("user not found")
 	}
 
 	return nil
