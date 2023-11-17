@@ -13,6 +13,7 @@ import (
 type Users interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
+	Update(c *gin.Context)
 }
 
 type UsersImpl struct {
@@ -73,4 +74,40 @@ func (h *UsersImpl) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (h *UsersImpl) Update(c *gin.Context) {
+	body := dto.UpdateUserRequest{}
+	header := c.MustGet("user").(map[string]interface{})
+	userID := header["id"].(uint)
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		err := errs.New(http.StatusBadRequest, "Invalid request body!")
+		c.Error(err)
+		return
+	}
+
+	user, err := h.service.Update(userID, &body)
+	if err != nil {
+		switch err.Error() {
+		case "user not found":
+			err := errs.New(http.StatusNotFound, err.Error())
+			c.Error(err)
+			return
+		case "failed to update user":
+			err := errs.New(http.StatusInternalServerError, err.Error())
+			c.Error(err)
+			return
+		}
+	}
+
+	response := dto.UpdateUserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		Username:  user.Username,
+		Age:       user.Age,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

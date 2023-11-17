@@ -12,6 +12,7 @@ import (
 type Users interface {
 	Register(r *dto.RegisterRequest) (*entity.User, error)
 	Login(r *dto.LoginRequest) (string, error)
+	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
 }
 
 type UsersImpl struct {
@@ -54,4 +55,13 @@ func (s *UsersImpl) Login(r *dto.LoginRequest) (string, error) {
 	}
 
 	return token, nil
+}
+
+func (s *UsersImpl) Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error) {
+	user, err := s.repository.Update(id, r)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, err
 }
