@@ -95,7 +95,7 @@ func (h *UsersImpl) Update(c *gin.Context) {
 			err := errs.New(http.StatusNotFound, err.Error())
 			c.Error(err)
 			return
-		case "failed to update user":
+		default:
 			err := errs.New(http.StatusInternalServerError, err.Error())
 			c.Error(err)
 			return

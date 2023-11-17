@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"log"
 
 	"gorm.io/gorm"
 
@@ -61,7 +60,6 @@ func (r *UsersImpl) Update(id uint, data *dto.UpdateUserRequest) (*entity.User, 
 			return err
 		}
 
-		log.Print(u)
 		if err := tx.Model(&u).Updates(data).Error; err != nil {
 			return err
 		}
