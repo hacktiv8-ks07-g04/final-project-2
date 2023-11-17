@@ -13,6 +13,7 @@ type Users interface {
 	Register(r *dto.RegisterRequest) (*entity.User, error)
 	Login(r *dto.LoginRequest) (string, error)
 	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
+	Delete(id uint) error
 }
 
 type UsersImpl struct {
@@ -64,4 +65,13 @@ func (s *UsersImpl) Update(id uint, r *dto.UpdateUserRequest) (*entity.User, err
 	}
 
 	return user, err
+}
+
+func (s *UsersImpl) Delete(id uint) error {
+	err := s.repository.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

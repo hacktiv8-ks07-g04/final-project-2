@@ -50,6 +50,7 @@ func Init() *gin.Engine {
 		usersRouter.POST("/register", usersHandler.Register)
 		usersRouter.POST("/login", usersHandler.Login)
 		usersRouter.PUT("/", middleware.Authentication(), usersHandler.Update)
+		usersRouter.DELETE("/", middleware.Authentication(), usersHandler.Delete)
 	}
 
 	// Photos

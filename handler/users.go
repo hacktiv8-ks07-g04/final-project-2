@@ -14,6 +14,7 @@ type Users interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type UsersImpl struct {
@@ -110,4 +111,27 @@ func (h *UsersImpl) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *UsersImpl) Delete(c *gin.Context) {
+	header := c.MustGet("user").(map[string]interface{})
+	userID := header["id"].(uint)
+
+	err := h.service.Delete(userID)
+	if err != nil {
+		switch err.Error() {
+		case "user not found":
+			err := errs.New(http.StatusNotFound, err.Error())
+			c.Error(err)
+			return
+		case "failed to update user":
+			err := errs.New(http.StatusInternalServerError, err.Error())
+			c.Error(err)
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Your account has been successfully deleted",
+	})
 }

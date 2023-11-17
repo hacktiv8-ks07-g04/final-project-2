@@ -14,6 +14,7 @@ type Users interface {
 	Register(u *entity.User) (*entity.User, error)
 	Login(email string) (*entity.User, error)
 	Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error)
+	Delete(id uint) error
 }
 
 type UsersImpl struct {
@@ -69,4 +70,16 @@ func (r *UsersImpl) Update(id uint, data *dto.UpdateUserRequest) (*entity.User, 
 	})
 
 	return u, err
+}
+
+func (r *UsersImpl) Delete(id uint) error {
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&entity.User{}, id).Error; err != nil {
+			return errors.New("user not found")
+		}
+
+		return nil
+	})
+
+	return err
 }
