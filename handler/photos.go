@@ -85,6 +85,8 @@ func (h *PhotosImpl) GetAll(c *gin.Context) {
 }
 
 func (h *PhotosImpl) Update(c *gin.Context) {
+	header := c.MustGet("user").(map[string]interface{})
+	userID := header["id"].(uint)
 	photoID := c.Param("photoId")
 
 	if photoID == "" {
@@ -107,10 +109,14 @@ func (h *PhotosImpl) Update(c *gin.Context) {
 		return
 	}
 
-	photo, err := h.service.Update(uint(photoIdInt), &body)
+	photo, err := h.service.Update(uint(photoIdInt), userID, &body)
 	if err != nil {
 		if err.Error() == "photo not found" {
 			err := errs.New(http.StatusNotFound, err.Error())
+			c.Error(err)
+			return
+		} else if err.Error() == "you are not authorized to update this photo" {
+			err := errs.New(http.StatusUnauthorized, err.Error())
 			c.Error(err)
 			return
 		} else {

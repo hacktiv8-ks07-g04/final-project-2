@@ -12,7 +12,7 @@ import (
 type Photos interface {
 	Add(userID uint, p *entity.Photo) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
-	Update(photoID uint, data *dto.AddPhotoRequest) (*entity.Photo, error)
+	Update(photoID, userID uint, data *dto.AddPhotoRequest) (*entity.Photo, error)
 }
 
 type PhotosImpl struct {
@@ -58,12 +58,19 @@ func (r *PhotosImpl) GetAll() ([]entity.Photo, error) {
 	return photos, err
 }
 
-func (r *PhotosImpl) Update(photoID uint, data *dto.AddPhotoRequest) (*entity.Photo, error) {
+func (r *PhotosImpl) Update(
+	photoID, userID uint,
+	data *dto.AddPhotoRequest,
+) (*entity.Photo, error) {
 	var photo entity.Photo
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&entity.Photo{}).Preload("User").First(&photo, photoID).Error; err != nil {
 			return errors.New("photo not found")
+		}
+
+		if photo.UserID != userID {
+			return errors.New("you are not authorized to update this photo")
 		}
 
 		if err := tx.Model(&photo).Updates(data).Error; err != nil {
