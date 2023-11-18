@@ -22,3 +22,8 @@ type AddPhotoRequest struct {
 	Caption  string `json:"caption"`
 	PhotoURL string `json:"photo_url"`
 }
+
+type CreateCommentRequest struct {
+	Message string `json:"message"`
+	PhotoID uint   `json:"photo_id"`
+}

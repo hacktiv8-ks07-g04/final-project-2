@@ -77,9 +77,9 @@ func Init() *gin.Engine {
 	commentsRepo := repository.NewComments(db)
 	commentsService := service.NewComments(commentsRepo)
 	commentsHandler := handler.NewComments(commentsService)
-	commentsRouter := r.Group("/comments")
+	commentsRouter := r.Group("/comments").Use(middleware.Authentication())
 	{
-		_, _ = commentsHandler, commentsRouter
+		commentsRouter.POST("/", commentsHandler.Add)
 	}
 
 	// Social Medias
