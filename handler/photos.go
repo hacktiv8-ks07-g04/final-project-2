@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -13,6 +14,7 @@ import (
 type Photos interface {
 	Add(c *gin.Context)
 	GetAll(c *gin.Context)
+	Update(c *gin.Context)
 }
 
 type PhotosImpl struct {
@@ -77,6 +79,54 @@ func (h *PhotosImpl) GetAll(c *gin.Context) {
 				Username: photo.User.Username,
 			},
 		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *PhotosImpl) Update(c *gin.Context) {
+	photoID := c.Param("photoId")
+
+	if photoID == "" {
+		err := errs.New(http.StatusBadRequest, "photo id is required in params")
+		c.Error(err)
+		return
+	}
+
+	body := dto.AddPhotoRequest{}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		err := errs.New(http.StatusBadRequest, "Invalid request body!")
+		c.Error(err)
+		return
+	}
+
+	photoIdInt, err := strconv.Atoi(photoID)
+	if err != nil {
+		err := errs.New(http.StatusBadRequest, "photo id must be a number")
+		c.Error(err)
+		return
+	}
+
+	photo, err := h.service.Update(uint(photoIdInt), &body)
+	if err != nil {
+		if err.Error() == "photo not found" {
+			err := errs.New(http.StatusNotFound, err.Error())
+			c.Error(err)
+			return
+		} else {
+			err := errs.New(http.StatusInternalServerError, err.Error())
+			c.Error(err)
+			return
+		}
+	}
+
+	response := dto.UpdatePhotoResponse{
+		ID:        photo.ID,
+		Title:     photo.Title,
+		Caption:   photo.Caption,
+		PhotoURL:  photo.PhotoURL,
+		UserID:    photo.UserID,
+		UpdatedAt: photo.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, response)
