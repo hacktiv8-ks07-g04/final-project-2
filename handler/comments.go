@@ -12,6 +12,7 @@ import (
 
 type Comments interface {
 	Add(c *gin.Context)
+	GetAll(c *gin.Context)
 }
 
 type CommentsImpl struct {
@@ -55,4 +56,40 @@ func (h *CommentsImpl) Add(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *CommentsImpl) GetAll(c *gin.Context) {
+	comments, err := h.service.GetAll()
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, err.Error())
+		c.Error(err)
+		return
+	}
+
+	var response []dto.GetAllCommentsResponse
+
+	for _, comment := range comments {
+		response = append(response, dto.GetAllCommentsResponse{
+			ID:        comment.ID,
+			Message:   comment.Message,
+			UserID:    comment.UserID,
+			PhotoID:   comment.PhotoID,
+			CreatedAt: comment.CreatedAt,
+			UpdatedAt: comment.UpdatedAt,
+			User: dto.UserComment{
+				ID:       comment.User.ID,
+				Email:    comment.User.Email,
+				Username: comment.User.Username,
+			},
+			Photo: dto.PhotoComment{
+				ID:       comment.Photo.ID,
+				Title:    comment.Photo.Title,
+				Caption:  comment.Photo.Caption,
+				PhotoURL: comment.Photo.PhotoURL,
+				UserID:   comment.Photo.UserID,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

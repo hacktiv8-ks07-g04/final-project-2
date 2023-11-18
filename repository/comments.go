@@ -11,6 +11,7 @@ import (
 
 type Comments interface {
 	Add(userID uint, comment *entity.Comment) (*entity.Comment, error)
+	GetAll() ([]entity.Comment, error)
 }
 
 type CommentsImpl struct {
@@ -50,4 +51,18 @@ func (r *CommentsImpl) Add(userID uint, comment *entity.Comment) (*entity.Commen
 	})
 
 	return comment, err
+}
+
+func (r *CommentsImpl) GetAll() ([]entity.Comment, error) {
+	var comments []entity.Comment
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("User").Preload("Photo").Find(&comments).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return comments, err
 }

@@ -8,6 +8,7 @@ import (
 
 type Comments interface {
 	Add(userID uint, r *dto.CreateCommentRequest) (*entity.Comment, error)
+	GetAll() ([]entity.Comment, error)
 }
 
 type CommentsImpl struct {
@@ -31,4 +32,13 @@ func (s *CommentsImpl) Add(userID uint, r *dto.CreateCommentRequest) (*entity.Co
 	}
 
 	return comment, nil
+}
+
+func (s *CommentsImpl) GetAll() ([]entity.Comment, error) {
+	comments, err := s.repository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return comments, nil
 }

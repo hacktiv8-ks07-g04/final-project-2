@@ -80,6 +80,7 @@ func Init() *gin.Engine {
 	commentsRouter := r.Group("/comments").Use(middleware.Authentication())
 	{
 		commentsRouter.POST("/", commentsHandler.Add)
+		commentsRouter.GET("/", commentsHandler.GetAll)
 	}
 
 	// Social Medias
