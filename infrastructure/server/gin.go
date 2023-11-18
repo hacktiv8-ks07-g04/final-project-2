@@ -60,6 +60,7 @@ func Init() *gin.Engine {
 	photosRouter := r.Group("/photos").Use(middleware.Authentication())
 	{
 		photosRouter.POST("/", photosHandler.Add)
+		photosRouter.GET("/", photosHandler.GetAll)
 	}
 
 	// Comments

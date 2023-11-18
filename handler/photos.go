@@ -12,6 +12,7 @@ import (
 
 type Photos interface {
 	Add(c *gin.Context)
+	GetAll(c *gin.Context)
 }
 
 type PhotosImpl struct {
@@ -50,4 +51,33 @@ func (h *PhotosImpl) Add(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *PhotosImpl) GetAll(c *gin.Context) {
+	photos, err := h.service.GetAll()
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, err.Error())
+		c.Error(err)
+		return
+	}
+
+	var response []dto.GetAllPhotosResponse
+
+	for _, photo := range photos {
+		response = append(response, dto.GetAllPhotosResponse{
+			ID:        photo.ID,
+			Title:     photo.Title,
+			Caption:   photo.Caption,
+			PhotoURL:  photo.PhotoURL,
+			UserID:    photo.UserID,
+			CreatedAt: photo.CreatedAt,
+			UpdatedAt: photo.UpdatedAt,
+			User: dto.UserPhoto{
+				Email:    photo.User.Email,
+				Username: photo.User.Username,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

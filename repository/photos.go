@@ -8,6 +8,7 @@ import (
 
 type Photos interface {
 	Add(userID uint, p *entity.Photo) (*entity.Photo, error)
+	GetAll() ([]entity.Photo, error)
 }
 
 type PhotosImpl struct {
@@ -37,4 +38,18 @@ func (r *PhotosImpl) Add(userID uint, p *entity.Photo) (*entity.Photo, error) {
 	})
 
 	return p, err
+}
+
+func (r *PhotosImpl) GetAll() ([]entity.Photo, error) {
+	var photos []entity.Photo
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("User").Find(&photos).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return photos, err
 }
