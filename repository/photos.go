@@ -12,8 +12,8 @@ import (
 type Photos interface {
 	Add(userID uint, p *entity.Photo) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
-	Update(photoID, userID uint, data *dto.AddPhotoRequest) (*entity.Photo, error)
-	Delete(photoID, userID uint) error
+	Update(photo *entity.Photo, data *dto.AddPhotoRequest) (*entity.Photo, error)
+	Delete(photo *entity.Photo) error
 }
 
 type PhotosImpl struct {
@@ -59,21 +59,8 @@ func (r *PhotosImpl) GetAll() ([]entity.Photo, error) {
 	return photos, err
 }
 
-func (r *PhotosImpl) Update(
-	photoID, userID uint,
-	data *dto.AddPhotoRequest,
-) (*entity.Photo, error) {
-	var photo entity.Photo
-
+func (r *PhotosImpl) Update(photo *entity.Photo, data *dto.AddPhotoRequest) (*entity.Photo, error) {
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&entity.Photo{}).Preload("User").First(&photo, photoID).Error; err != nil {
-			return errors.New("photo not found")
-		}
-
-		if photo.UserID != userID {
-			return errors.New("you are not authorized to update this photo")
-		}
-
 		if err := tx.Model(&photo).Updates(data).Error; err != nil {
 			return err
 		}
@@ -81,21 +68,11 @@ func (r *PhotosImpl) Update(
 		return nil
 	})
 
-	return &photo, err
+	return photo, err
 }
 
-func (r *PhotosImpl) Delete(photoID, userID uint) error {
-	var photo entity.Photo
-
+func (r *PhotosImpl) Delete(photo *entity.Photo) error {
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&entity.Photo{}).Preload("User").First(&photo, photoID).Error; err != nil {
-			return errors.New("photo not found")
-		}
-
-		if photo.UserID != userID {
-			return errors.New("you are not authorized to delete this photo")
-		}
-
 		if err := tx.Delete(&photo).Error; err != nil {
 			return err
 		}
@@ -104,4 +81,18 @@ func (r *PhotosImpl) Delete(photoID, userID uint) error {
 	})
 
 	return err
+}
+
+func (r *PhotosImpl) Get(photoID uint) (*entity.Photo, error) {
+	var photo entity.Photo
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("User").First(&photo, photoID).Error; err != nil {
+			return errors.New("photo not found")
+		}
+
+		return nil
+	})
+
+	return &photo, err
 }
