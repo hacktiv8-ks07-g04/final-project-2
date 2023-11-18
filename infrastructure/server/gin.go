@@ -62,6 +62,7 @@ func Init() *gin.Engine {
 		photosRouter.POST("/", photosHandler.Add)
 		photosRouter.GET("/", photosHandler.GetAll)
 		photosRouter.PUT("/:photoId", photosHandler.Update)
+		photosRouter.DELETE("/:photoId", photosHandler.Delete)
 	}
 
 	// Comments

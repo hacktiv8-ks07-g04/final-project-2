@@ -13,6 +13,7 @@ type Photos interface {
 	Add(userID uint, p *entity.Photo) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
 	Update(photoID, userID uint, data *dto.AddPhotoRequest) (*entity.Photo, error)
+	Delete(photoID, userID uint) error
 }
 
 type PhotosImpl struct {
@@ -81,4 +82,26 @@ func (r *PhotosImpl) Update(
 	})
 
 	return &photo, err
+}
+
+func (r *PhotosImpl) Delete(photoID, userID uint) error {
+	var photo entity.Photo
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&entity.Photo{}).Preload("User").First(&photo, photoID).Error; err != nil {
+			return errors.New("photo not found")
+		}
+
+		if photo.UserID != userID {
+			return errors.New("you are not authorized to delete this photo")
+		}
+
+		if err := tx.Delete(&photo).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return err
 }
