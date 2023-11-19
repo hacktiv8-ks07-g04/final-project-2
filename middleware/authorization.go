@@ -49,3 +49,41 @@ func PhotoAuthorization(r *repository.PhotosImpl) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func CommentAuthorization(r *repository.CommentsImpl) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		header := c.MustGet("user").(map[string]interface{})
+		userID := header["id"].(uint)
+		commentID, err := strconv.Atoi(c.Param("commentId"))
+		if err != nil {
+			err := errs.New(http.StatusBadRequest, "comment id must be a number")
+			c.Error(err)
+			c.Abort()
+		}
+
+		comment, err := r.Get(uint(commentID))
+		if err != nil {
+			if err.Error() == "comment not found" {
+				err := errs.New(http.StatusNotFound, err.Error())
+				c.Error(err)
+				c.Abort()
+				return
+			} else {
+				c.Error(err)
+				c.Abort()
+				return
+			}
+		}
+
+		if comment.UserID != userID {
+			err := errs.New(http.StatusUnauthorized, "you are not authorized to update this photo")
+			c.Error(err)
+			c.Abort()
+			return
+		}
+
+		c.Set("comment", comment)
+
+		c.Next()
+	}
+}

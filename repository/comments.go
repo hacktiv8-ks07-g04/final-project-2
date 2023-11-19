@@ -63,3 +63,17 @@ func (r *CommentsImpl) GetAll() ([]entity.Comment, error) {
 
 	return comments, err
 }
+
+func (r *CommentsImpl) Get(commentID uint) (*entity.Comment, error) {
+	var comment *entity.Comment
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("User").Preload("Photo").First(&comment, commentID).Error; err != nil {
+			return errors.New("comment not found")
+		}
+
+		return nil
+	})
+
+	return comment, err
+}
