@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"log"
 
 	"gorm.io/gorm"
 
@@ -40,8 +39,6 @@ func (r *CommentsImpl) Add(userID uint, comment *entity.Comment) (*entity.Commen
 		comment.PhotoID = photo.ID
 		comment.Photo = photo // because of validation
 		comment.Photo.User = user
-
-		log.Print(comment.User)
 
 		if err := tx.Create(&comment).Error; err != nil {
 			return err
