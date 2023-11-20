@@ -110,6 +110,7 @@ func Init() *gin.Engine {
 		socialMediasRouter.POST("/", socialMediasHandler.Add)
 		socialMediasRouter.GET("/", socialMediasHandler.GetAll)
 		socialMediasRouter.PUT("/:socialMediaId", authService.SocialMediaAuthorization(), socialMediasHandler.Update)
+		socialMediasRouter.DELETE("/:socialMediaId", authService.SocialMediaAuthorization(), socialMediasHandler.Delete)
 	}
 
 	return r

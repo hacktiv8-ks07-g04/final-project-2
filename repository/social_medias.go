@@ -13,6 +13,7 @@ type SocialMedias interface {
 	Add(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error)
 	GetAll() ([]entity.SocialMedia, error)
 	Update(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error)
+	Delete(socialMedia *entity.SocialMedia) error
 }
 
 type SocialMediasImpl struct {
@@ -59,4 +60,12 @@ func (r *SocialMediasImpl) Update(socialMedia *entity.SocialMedia) (*entity.Soci
 	}
 
 	return socialMedia, nil
+}
+
+func (r *SocialMediasImpl) Delete(socialMedia *entity.SocialMedia) error {
+	if err := r.db.Delete(&socialMedia).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

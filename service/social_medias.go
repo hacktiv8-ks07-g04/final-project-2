@@ -10,6 +10,7 @@ type SocialMedias interface {
 	Add(payload *dto.SocialMedia) (*entity.SocialMedia, error)
 	GetAll() ([]entity.SocialMedia, error)
 	Update(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error)
+	Delete(socialMedia *entity.SocialMedia) error
 }
 
 type SocialMediasImpl struct {
@@ -36,4 +37,8 @@ func (s *SocialMediasImpl) GetAll() ([]entity.SocialMedia, error) {
 
 func (s *SocialMediasImpl) Update(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error) {
 	return s.repository.Update(socialMedia)
+}
+
+func (s *SocialMediasImpl) Delete(socialMedia *entity.SocialMedia) error {
+	return s.repository.Delete(socialMedia)
 }

@@ -15,6 +15,7 @@ type SocialMedias interface {
 	Add(c *gin.Context)
 	GetAll(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type SocialMediasImpl struct {
@@ -128,4 +129,19 @@ func (h *SocialMediasImpl) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *SocialMediasImpl) Delete(c *gin.Context) {
+	payload := c.MustGet("socialMedia").(*entity.SocialMedia)
+
+	err := h.socialMediaService.Delete(payload)
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, "Failed to delete social media!")
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Your social media has been successfully deleted",
+	})
 }
