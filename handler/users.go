@@ -124,8 +124,7 @@ func (h *UsersImpl) Update(c *gin.Context) {
 }
 
 func (h *UsersImpl) Delete(c *gin.Context) {
-	header := c.MustGet("user").(map[string]interface{})
-	userID := header["id"].(uint)
+	userID := c.MustGet("userId").(uint)
 
 	err := h.userService.Delete(userID)
 	if err != nil {
@@ -141,7 +140,9 @@ func (h *UsersImpl) Delete(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Your account has been successfully deleted",
-	})
+	response := dto.DeleteUserResponse{
+		Message: "Your account has been successfully deleted",
+	}
+
+	c.JSON(http.StatusOK, response)
 }

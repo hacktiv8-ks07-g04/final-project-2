@@ -53,15 +53,11 @@ func (r *UsersImpl) Update(user *entity.User) (*entity.User, error) {
 }
 
 func (r *UsersImpl) Delete(id uint) error {
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Delete(&entity.User{}, id).Error; err != nil {
-			return errors.New("user not found")
-		}
+	if err := r.db.Delete(&entity.User{}, id).Error; err != nil {
+		return errors.New("user not found")
+	}
 
-		return nil
-	})
-
-	return err
+	return nil
 }
 
 func (r *UsersImpl) Get(id uint) (*entity.User, error) {

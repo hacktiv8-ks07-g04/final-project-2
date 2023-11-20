@@ -43,3 +43,7 @@ type UserResponse struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type DeleteUserResponse struct {
+	Message string `json:"message"`
+}
