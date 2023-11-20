@@ -2,12 +2,12 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/errs"
+	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
+	"github.com/hacktiv8-ks07-g04/final-project-2/pkg/errs"
 	"github.com/hacktiv8-ks07-g04/final-project-2/service"
 )
 
@@ -19,27 +19,29 @@ type Photos interface {
 }
 
 type PhotosImpl struct {
-	service service.Photos
+	photoService service.Photos
+	userService  service.Users
 }
 
-func NewPhotos(service service.Photos) *PhotosImpl {
-	return &PhotosImpl{service}
+func NewPhotos(photoService service.Photos, userService service.Users) *PhotosImpl {
+	return &PhotosImpl{
+		photoService: photoService,
+		userService:  userService,
+	}
 }
 
 func (h *PhotosImpl) Add(c *gin.Context) {
-	body := dto.AddPhotoRequest{}
-	header := c.MustGet("user").(map[string]interface{})
-	userID := header["id"].(uint)
+	userId := c.MustGet("userId").(uint)
 
+	var body dto.AddPhotoRequest
 	if err := c.ShouldBindJSON(&body); err != nil {
-		err := errs.New(http.StatusBadRequest, "Invalid request body!")
+		err := errs.New(http.StatusBadRequest, "Invalid request body")
 		c.Error(err)
 		return
 	}
 
-	photo, err := h.service.Add(userID, &body)
+	photo, err := h.photoService.Add(userId, &body)
 	if err != nil {
-		err := errs.New(http.StatusInternalServerError, err.Error())
 		c.Error(err)
 		return
 	}
@@ -57,27 +59,32 @@ func (h *PhotosImpl) Add(c *gin.Context) {
 }
 
 func (h *PhotosImpl) GetAll(c *gin.Context) {
-	photos, err := h.service.GetAll()
+	photos, err := h.photoService.GetAll()
 	if err != nil {
-		err := errs.New(http.StatusInternalServerError, err.Error())
+		err := errs.New(http.StatusNotFound, "Photos not found")
 		c.Error(err)
 		return
 	}
 
-	var response []dto.GetAllPhotosResponse
-
+	var response []dto.GetPhotoResponse
 	for _, photo := range photos {
-		response = append(response, dto.GetAllPhotosResponse{
+		user, err := h.userService.Get(photo.UserID)
+		if err != nil {
+			err := errs.New(http.StatusNotFound, "User not found")
+			c.Error(err)
+			return
+		}
+
+		response = append(response, dto.GetPhotoResponse{
 			ID:        photo.ID,
 			Title:     photo.Title,
 			Caption:   photo.Caption,
 			PhotoURL:  photo.PhotoURL,
 			UserID:    photo.UserID,
 			CreatedAt: photo.CreatedAt,
-			UpdatedAt: photo.UpdatedAt,
 			User: dto.UserPhoto{
-				Email:    photo.User.Email,
-				Username: photo.User.Username,
+				Email:    user.Email,
+				Username: user.Username,
 			},
 		})
 	}
@@ -86,20 +93,39 @@ func (h *PhotosImpl) GetAll(c *gin.Context) {
 }
 
 func (h *PhotosImpl) Update(c *gin.Context) {
-	photo := c.MustGet("photo").(*entity.Photo)
+	photoID := c.Param("photoId")
 
-	body := dto.AddPhotoRequest{}
+	if photoID == "" {
+		err := errs.New(http.StatusBadRequest, "photo id is required in params")
+		c.Error(err)
+		return
+	}
+
+	body := dto.UpdatePhotoRequest{}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		err := errs.New(http.StatusBadRequest, "Invalid request body!")
 		c.Error(err)
 		return
 	}
 
-	photo, err := h.service.Update(photo, &body)
+	photoIdInt, err := strconv.Atoi(photoID)
 	if err != nil {
-		err := errs.New(http.StatusInternalServerError, err.Error())
+		err := errs.New(http.StatusBadRequest, "photo id must be a number")
 		c.Error(err)
 		return
+	}
+
+	photo, err := h.photoService.Update(uint(photoIdInt), &body)
+	if err != nil {
+		if err.Error() == "photo not found" {
+			err := errs.New(http.StatusNotFound, err.Error())
+			c.Error(err)
+			return
+		} else {
+			err := errs.New(http.StatusInternalServerError, err.Error())
+			c.Error(err)
+			return
+		}
 	}
 
 	response := dto.UpdatePhotoResponse{
@@ -115,10 +141,22 @@ func (h *PhotosImpl) Update(c *gin.Context) {
 }
 
 func (h *PhotosImpl) Delete(c *gin.Context) {
-	photo := c.MustGet("photo").(*entity.Photo)
+	photoID := c.Param("photoId")
 
-	err := h.service.Delete(photo)
+	if photoID == "" {
+		err := errs.New(http.StatusBadRequest, "photo id is required in params")
+		c.Error(err)
+		return
+	}
+
+	photoIdInt, err := strconv.Atoi(photoID)
 	if err != nil {
+		err := errs.New(http.StatusBadRequest, "photo id must be a number")
+		c.Error(err)
+		return
+	}
+
+	if err := h.photoService.Delete(uint(photoIdInt)); err != nil {
 		err := errs.New(http.StatusInternalServerError, err.Error())
 		c.Error(err)
 		return

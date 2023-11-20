@@ -1,16 +1,17 @@
 package service
 
 import (
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
+	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/repository"
 )
 
 type Photos interface {
 	Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, error)
+	Get(photoId uint) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
-	Update(photo *entity.Photo, r *dto.AddPhotoRequest) (*entity.Photo, error)
-	Delete(photo *entity.Photo) error
+	Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error)
+	Delete(photoId uint) error
 }
 
 type PhotosImpl struct {
@@ -26,36 +27,46 @@ func (s *PhotosImpl) Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, er
 		Title:    r.Title,
 		Caption:  r.Caption,
 		PhotoURL: r.PhotoURL,
+		UserID:   userID,
 	}
 
-	p, err := s.repository.Add(userID, &photo)
+	result, err := s.repository.Add(&photo)
 	if err != nil {
 		return nil, err
 	}
 
-	return p, err
+	return result, nil
+}
+
+func (s *PhotosImpl) Get(photoId uint) (*entity.Photo, error) {
+	result, err := s.repository.Get(photoId)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s *PhotosImpl) GetAll() ([]entity.Photo, error) {
-	photos, err := s.repository.GetAll()
+	result, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
 	}
 
-	return photos, err
+	return result, nil
 }
 
-func (s *PhotosImpl) Update(photo *entity.Photo, r *dto.AddPhotoRequest) (*entity.Photo, error) {
-	photo, err := s.repository.Update(photo, r)
+func (s *PhotosImpl) Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error) {
+	result, err := s.repository.Update(photoId, r)
 	if err != nil {
 		return nil, err
 	}
 
-	return photo, err
+	return result, nil
 }
 
-func (s *PhotosImpl) Delete(photo *entity.Photo) error {
-	err := s.repository.Delete(photo)
+func (s *PhotosImpl) Delete(photoId uint) error {
+	err := s.repository.Delete(photoId)
 	if err != nil {
 		return err
 	}

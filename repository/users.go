@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
+	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
 )
 
 type Users interface {
@@ -14,6 +14,7 @@ type Users interface {
 	Login(email string) (*entity.User, error)
 	Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error)
 	Delete(id uint) error
+	Get(id uint) (*entity.User, error)
 }
 
 type UsersImpl struct {
@@ -80,4 +81,14 @@ func (r *UsersImpl) Delete(id uint) error {
 	})
 
 	return err
+}
+
+func (r *UsersImpl) Get(id uint) (*entity.User, error) {
+	var user entity.User
+	err := r.db.First(&user, id).Error
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	return &user, err
 }

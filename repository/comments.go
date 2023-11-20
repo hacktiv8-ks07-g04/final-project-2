@@ -9,8 +9,11 @@ import (
 )
 
 type Comments interface {
-	Add(userID uint, comment *entity.Comment) (*entity.Comment, error)
+	Create(comment *entity.Comment) (*entity.Comment, error)
+	Get(id uint) (*entity.Comment, error)
 	GetAll() ([]entity.Comment, error)
+	Update(comment *entity.Comment) (*entity.Comment, error)
+	Delete(comment *entity.Comment) error
 }
 
 type CommentsImpl struct {
@@ -21,59 +24,46 @@ func NewComments(db *gorm.DB) *CommentsImpl {
 	return &CommentsImpl{db}
 }
 
-func (r *CommentsImpl) Add(userID uint, comment *entity.Comment) (*entity.Comment, error) {
-	var user entity.User
-	var photo entity.Photo
+func (r *CommentsImpl) Get(id uint) (*entity.Comment, error) {
+	comment := entity.Comment{}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&user, userID).Error; err != nil {
-			return errors.New("user not found")
-		}
+	if err := r.db.First(&comment, id).Error; err != nil {
+		return nil, errors.New("comment not found")
+	}
 
-		if err := tx.First(&photo, comment.PhotoID).Error; err != nil {
-			return errors.New("photo not found")
-		}
+	return &comment, nil
+}
 
-		comment.UserID = user.ID
-		comment.User = user // because of validation
-		comment.PhotoID = photo.ID
-		comment.Photo = photo // because of validation
-		comment.Photo.User = user
+func (r *CommentsImpl) Create(comment *entity.Comment) (*entity.Comment, error) {
+	if err := r.db.Create(&comment).Error; err != nil {
+		return nil, err
+	}
 
-		if err := tx.Create(&comment).Error; err != nil {
-			return err
-		}
+	return comment, nil
+}
 
-		return nil
-	})
+func (r *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
+	if err := r.db.Save(&comment).Error; err != nil {
+		return nil, err
+	}
 
-	return comment, err
+	return comment, nil
 }
 
 func (r *CommentsImpl) GetAll() ([]entity.Comment, error) {
-	var comments []entity.Comment
+	comments := []entity.Comment{}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Preload("User").Preload("Photo").Find(&comments).Error; err != nil {
-			return err
-		}
+	if err := r.db.Find(&comments).Error; err != nil {
+		return nil, err
+	}
 
-		return nil
-	})
-
-	return comments, err
+	return comments, nil
 }
 
-func (r *CommentsImpl) Get(commentID uint) (*entity.Comment, error) {
-	var comment *entity.Comment
+func (r *CommentsImpl) Delete(comment *entity.Comment) error {
+	if err := r.db.Delete(&comment).Error; err != nil {
+		return err
+	}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Preload("User").Preload("Photo").First(&comment, commentID).Error; err != nil {
-			return errors.New("comment not found")
-		}
-
-		return nil
-	})
-
-	return comment, err
+	return nil
 }
