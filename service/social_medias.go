@@ -8,6 +8,7 @@ import (
 
 type SocialMedias interface {
 	Add(payload *dto.SocialMedia) (*entity.SocialMedia, error)
+	GetAll() ([]entity.SocialMedia, error)
 }
 
 type SocialMediasImpl struct {
@@ -26,4 +27,8 @@ func (s *SocialMediasImpl) Add(payload *dto.SocialMedia) (*entity.SocialMedia, e
 	}
 
 	return s.repository.Add(&socialMedia)
+}
+
+func (s *SocialMediasImpl) GetAll() ([]entity.SocialMedia, error) {
+	return s.repository.GetAll()
 }

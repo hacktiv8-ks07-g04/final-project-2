@@ -59,7 +59,7 @@ func Init() *gin.Engine {
 	// Social Medias
 	socialMediasRepo := repository.NewSocialMedias(db)
 	socialMediasService := service.NewSocialMedias(socialMediasRepo)
-	socialMediasHandler := handler.NewSocialMedias(socialMediasService)
+	socialMediasHandler := handler.NewSocialMedias(socialMediasService, usersService)
 
 	// Authorization
 	authService := service.NewAuthorization(photosRepo, commentsRepo)
@@ -108,6 +108,7 @@ func Init() *gin.Engine {
 	socialMediasRouter := r.Group("/socialmedias").Use(middleware.Authentication())
 	{
 		socialMediasRouter.POST("/", socialMediasHandler.Add)
+		socialMediasRouter.GET("/", socialMediasHandler.GetAll)
 	}
 
 	return r

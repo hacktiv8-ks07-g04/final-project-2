@@ -12,14 +12,19 @@ import (
 
 type SocialMedias interface {
 	Add(c *gin.Context)
+	GetAll(c *gin.Context)
 }
 
 type SocialMediasImpl struct {
-	service service.SocialMedias
+	socialMediaService service.SocialMedias
+	userService        service.Users
 }
 
-func NewSocialMedias(service service.SocialMedias) *SocialMediasImpl {
-	return &SocialMediasImpl{service}
+func NewSocialMedias(socialMediaService service.SocialMedias, userService service.Users) *SocialMediasImpl {
+	return &SocialMediasImpl{
+		socialMediaService: socialMediaService,
+		userService:        userService,
+	}
 }
 
 func (h *SocialMediasImpl) Add(c *gin.Context) {
@@ -37,7 +42,7 @@ func (h *SocialMediasImpl) Add(c *gin.Context) {
 		UserID:         c.MustGet("userId").(uint),
 	}
 
-	socialMedia, err := h.service.Add(&payload)
+	socialMedia, err := h.socialMediaService.Add(&payload)
 	if err != nil {
 		err := errs.New(http.StatusInternalServerError, "Failed to add social media")
 		c.Error(err)
@@ -53,4 +58,41 @@ func (h *SocialMediasImpl) Add(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *SocialMediasImpl) GetAll(c *gin.Context) {
+	socialMedias, err := h.socialMediaService.GetAll()
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, "Invalid request body!")
+		c.Error(err)
+		return
+	}
+
+	response := []dto.SocialMediaResponse{}
+
+	for _, socialMedia := range socialMedias {
+		user, err := h.userService.Get(socialMedia.UserID)
+		if err != nil {
+			err := errs.New(http.StatusInternalServerError, "Failed to get user!")
+			c.Error(err)
+			return
+		}
+
+		response = append(response, dto.SocialMediaResponse{
+			ID:             socialMedia.ID,
+			Name:           socialMedia.Name,
+			SocialMediaURL: socialMedia.SocialMediaURL,
+			UserID:         socialMedia.UserID,
+			CreatedAt:      &socialMedia.CreatedAt,
+			UpdatedAt:      &socialMedia.UpdatedAt,
+			User: &dto.UserResponse{
+				ID:       user.ID,
+				Username: user.Username,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"social_medias": response,
+	})
 }

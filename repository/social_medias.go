@@ -11,6 +11,7 @@ import (
 type SocialMedias interface {
 	Get(id uint) (*entity.SocialMedia, error)
 	Add(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error)
+	GetAll() ([]entity.SocialMedia, error)
 }
 
 type SocialMediasImpl struct {
@@ -39,4 +40,14 @@ func (r *SocialMediasImpl) Add(socialMedia *entity.SocialMedia) (*entity.SocialM
 	}
 
 	return socialMedia, nil
+}
+
+func (r *SocialMediasImpl) GetAll() ([]entity.SocialMedia, error) {
+	socialMedias := []entity.SocialMedia{}
+
+	if err := r.db.Find(&socialMedias).Error; err != nil {
+		return nil, err
+	}
+
+	return socialMedias, nil
 }
