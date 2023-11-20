@@ -37,7 +37,7 @@ func Init() *gin.Engine {
 			"header": header,
 			"id":     id,
 		})
-	}) // for auth purpose
+	})
 
 	db := database.GetInstance()
 
@@ -45,6 +45,26 @@ func Init() *gin.Engine {
 	usersRepo := repository.NewUsers(db)
 	usersService := service.NewUsers(usersRepo)
 	usersHandler := handler.NewUsers(usersService)
+
+	// Photos
+	photosRepo := repository.NewPhotos(db)
+	photosService := service.NewPhotos(photosRepo)
+	photosHandler := handler.NewPhotos(photosService, usersService)
+
+	// Comments
+	commentsRepo := repository.NewComments(db)
+	commentsService := service.NewComments(commentsRepo)
+	commentsHandler := handler.NewComments(commentsService)
+
+	// Social Medias
+	socialMediasRepo := repository.NewSocialMedias(db)
+	socialMediasService := service.NewSocialMedias(socialMediasRepo)
+	socialMediasHandler := handler.NewSocialMedias(socialMediasService)
+
+	// Authorization
+	authService := service.NewAuthorization(photosRepo, commentsRepo)
+
+	// Routes
 	usersRouter := r.Group("/users")
 	{
 		usersRouter.POST("/register", usersHandler.Register)
@@ -53,34 +73,23 @@ func Init() *gin.Engine {
 		usersRouter.DELETE("/", middleware.Authentication(), usersHandler.Delete)
 	}
 
-	// Photos
-	photosRepo := repository.NewPhotos(db)
-	photosService := service.NewPhotos(photosRepo)
-	photosHandler := handler.NewPhotos(photosService, usersService)
 	photosRouter := r.Group("/photos").Use(middleware.Authentication())
 	{
 		photosRouter.POST("/", photosHandler.Add)
 		photosRouter.GET("/", photosHandler.GetAll)
 		photosRouter.PUT(
 			"/:photoId",
-			middleware.PhotoAuthorization(photosRepo),
+			authService.PhotoAuthorization(),
 			photosHandler.Update,
 		)
 		photosRouter.DELETE(
 			"/:photoId",
-			middleware.PhotoAuthorization(photosRepo),
+			authService.PhotoAuthorization(),
 			photosHandler.Delete,
 		)
 	}
 
-	// Comments
-	commentsRepo := repository.NewComments(db)
-	commentsService := service.NewComments(commentsRepo)
-	commentsHandler := handler.NewComments(commentsService)
 	commentsRouter := r.Group("/comments").Use(middleware.Authentication())
-
-	authService := service.NewAuthorization(commentsRepo)
-
 	{
 		commentsRouter.POST("/", commentsHandler.Add)
 		commentsRouter.PUT(
@@ -90,10 +99,6 @@ func Init() *gin.Engine {
 		)
 	}
 
-	// Social Medias
-	socialMediasRepo := repository.NewSocialMedias(db)
-	socialMediasService := service.NewSocialMedias(socialMediasRepo)
-	socialMediasHandler := handler.NewSocialMedias(socialMediasService)
 	socialMediasRouter := r.Group("/socialmedias")
 	{
 		_, _ = socialMediasHandler, socialMediasRouter
