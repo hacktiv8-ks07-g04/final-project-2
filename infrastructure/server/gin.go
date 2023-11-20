@@ -61,7 +61,11 @@ func Init() *gin.Engine {
 	{
 		photosRouter.POST("/", photosHandler.Add)
 		photosRouter.GET("/", photosHandler.GetAll)
-
+		photosRouter.PUT(
+			"/:photoId",
+			middleware.PhotoAuthorization(photosRepo),
+			photosHandler.Update,
+		)
 	}
 
 	// Comments

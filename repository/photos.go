@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
 )
 
@@ -12,6 +13,7 @@ type Photos interface {
 	Add(photo *entity.Photo) (*entity.Photo, error)
 	Get(photoId uint) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
+	Update(photoId uint, data *dto.UpdatePhotoRequest) (*entity.Photo, error)
 }
 
 type PhotosImpl struct {
@@ -49,4 +51,23 @@ func (r *PhotosImpl) GetAll() ([]entity.Photo, error) {
 	}
 
 	return photos, err
+}
+
+func (r *PhotosImpl) Update(
+	photoId uint,
+	data *dto.UpdatePhotoRequest,
+) (*entity.Photo, error) {
+	var photo *entity.Photo
+	var err error
+
+	photo, err = r.Get(photoId)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.db.Model(&photo).Updates(data).Error; err != nil {
+		return nil, err
+	}
+
+	return photo, err
 }

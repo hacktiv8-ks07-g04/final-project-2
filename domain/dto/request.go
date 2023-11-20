@@ -22,3 +22,9 @@ type AddPhotoRequest struct {
 	Caption  string `json:"caption"`
 	PhotoURL string `json:"photo_url" binding:"required"`
 }
+
+type UpdatePhotoRequest struct {
+	Title    string `json:"title"`
+	Caption  string `json:"caption"`
+	PhotoURL string `json:"photo_url"`
+}

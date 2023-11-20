@@ -9,6 +9,7 @@ import (
 type Photos interface {
 	Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
+	Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error)
 }
 
 type PhotosImpl struct {
@@ -37,6 +38,15 @@ func (s *PhotosImpl) Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, er
 
 func (s *PhotosImpl) GetAll() ([]entity.Photo, error) {
 	result, err := s.repository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *PhotosImpl) Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error) {
+	result, err := s.repository.Update(photoId, r)
 	if err != nil {
 		return nil, err
 	}
