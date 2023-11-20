@@ -32,3 +32,7 @@ type CommentResponse struct {
 	User      UserResponse  `json:"user"`
 	Photo     PhotoResponse `json:"photo"`
 }
+
+type DeleteCommentResponse struct {
+	Message string `json:"message"`
+}

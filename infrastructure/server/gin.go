@@ -98,6 +98,11 @@ func Init() *gin.Engine {
 			authService.CommentAuthorization(),
 			commentsHandler.Update,
 		)
+		commentsRouter.DELETE(
+			"/:commentId",
+			authService.CommentAuthorization(),
+			commentsHandler.Delete,
+		)
 	}
 
 	socialMediasRouter := r.Group("/socialmedias")

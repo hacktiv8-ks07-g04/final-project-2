@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
@@ -11,6 +13,7 @@ type Comments interface {
 	Get(id uint) (*entity.Comment, error)
 	GetAll() ([]entity.Comment, error)
 	Update(comment *entity.Comment) (*entity.Comment, error)
+	Delete(comment *entity.Comment) error
 }
 
 type CommentsImpl struct {
@@ -25,7 +28,7 @@ func (r *CommentsImpl) Get(id uint) (*entity.Comment, error) {
 	comment := entity.Comment{}
 
 	if err := r.db.First(&comment, id).Error; err != nil {
-		return nil, err
+		return nil, errors.New("comment not found")
 	}
 
 	return &comment, nil
@@ -55,4 +58,12 @@ func (r *CommentsImpl) GetAll() ([]entity.Comment, error) {
 	}
 
 	return comments, nil
+}
+
+func (r *CommentsImpl) Delete(comment *entity.Comment) error {
+	if err := r.db.Delete(&comment).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

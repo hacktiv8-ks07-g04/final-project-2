@@ -10,6 +10,7 @@ type Comments interface {
 	Add(payload *dto.Comment) (*entity.Comment, error)
 	GetAll() ([]entity.Comment, error)
 	Update(comment *entity.Comment) (*entity.Comment, error)
+	Delete(comment *entity.Comment) error
 }
 
 type CommentsImpl struct {
@@ -36,4 +37,8 @@ func (s *CommentsImpl) GetAll() ([]entity.Comment, error) {
 
 func (s *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
 	return s.repository.Update(comment)
+}
+
+func (s *CommentsImpl) Delete(comment *entity.Comment) error {
+	return s.repository.Delete(comment)
 }

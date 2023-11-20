@@ -15,6 +15,7 @@ type Comments interface {
 	Add(c *gin.Context)
 	GetAll(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type CommentsImpl struct {
@@ -144,6 +145,22 @@ func (h *CommentsImpl) Update(c *gin.Context) {
 		PhotoID:   comment.PhotoID,
 		UserID:    comment.UserID,
 		UpdatedAt: &comment.UpdatedAt,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *CommentsImpl) Delete(c *gin.Context) {
+	payload := c.MustGet("comment").(*entity.Comment)
+	err := h.commentService.Delete(payload)
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, "Failed to delete comment!")
+		c.Error(err)
+		return
+	}
+
+	response := dto.DeleteCommentResponse{
+		Message: "Your comment has been successfully deleted",
 	}
 
 	c.JSON(http.StatusOK, response)
