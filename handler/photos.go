@@ -12,14 +12,19 @@ import (
 
 type Photos interface {
 	Add(c *gin.Context)
+	GetAll(c *gin.Context)
 }
 
 type PhotosImpl struct {
-	service service.Photos
+	photoService service.Photos
+	userService  service.Users
 }
 
-func NewPhotos(service service.Photos) *PhotosImpl {
-	return &PhotosImpl{service}
+func NewPhotos(photoService service.Photos, userService service.Users) *PhotosImpl {
+	return &PhotosImpl{
+		photoService: photoService,
+		userService:  userService,
+	}
 }
 
 func (h *PhotosImpl) Add(c *gin.Context) {
@@ -32,7 +37,7 @@ func (h *PhotosImpl) Add(c *gin.Context) {
 		return
 	}
 
-	photo, err := h.service.Add(userId, &body)
+	photo, err := h.photoService.Add(userId, &body)
 	if err != nil {
 		c.Error(err)
 		return
@@ -48,4 +53,38 @@ func (h *PhotosImpl) Add(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *PhotosImpl) GetAll(c *gin.Context) {
+	photos, err := h.photoService.GetAll()
+	if err != nil {
+		err := errs.New(http.StatusNotFound, "Photos not found")
+		c.Error(err)
+		return
+	}
+
+	var response []dto.GetPhotoResponse
+	for _, photo := range photos {
+		user, err := h.userService.Get(photo.UserID)
+		if err != nil {
+			err := errs.New(http.StatusNotFound, "User not found")
+			c.Error(err)
+			return
+		}
+
+		response = append(response, dto.GetPhotoResponse{
+			ID:        photo.ID,
+			Title:     photo.Title,
+			Caption:   photo.Caption,
+			PhotoURL:  photo.PhotoURL,
+			UserID:    photo.UserID,
+			CreatedAt: photo.CreatedAt,
+			User: dto.UserPhoto{
+				Email:    user.Email,
+				Username: user.Username,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

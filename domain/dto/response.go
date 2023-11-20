@@ -33,7 +33,7 @@ type UserPhoto struct {
 	Username string `json:"username"`
 }
 
-type GetAllPhotosResponse struct {
+type GetPhotoResponse struct {
 	ID        uint      `json:"id"`
 	Title     string    `json:"title"`
 	Caption   string    `json:"caption"`

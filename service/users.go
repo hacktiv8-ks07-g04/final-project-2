@@ -14,6 +14,7 @@ type Users interface {
 	Login(r *dto.LoginRequest) (string, error)
 	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
 	Delete(id uint) error
+	Get(id uint) (*entity.User, error)
 }
 
 type UsersImpl struct {
@@ -74,4 +75,13 @@ func (s *UsersImpl) Delete(id uint) error {
 	}
 
 	return nil
+}
+
+func (s *UsersImpl) Get(id uint) (*entity.User, error) {
+	user, err := s.repository.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

@@ -56,12 +56,11 @@ func Init() *gin.Engine {
 	// Photos
 	photosRepo := repository.NewPhotos(db)
 	photosService := service.NewPhotos(photosRepo)
-	photosHandler := handler.NewPhotos(photosService)
+	photosHandler := handler.NewPhotos(photosService, usersService)
 	photosRouter := r.Group("/photos").Use(middleware.Authentication())
 	{
-		_, _ = photosHandler, photosRouter
-
 		photosRouter.POST("/", photosHandler.Add)
+		photosRouter.GET("/", photosHandler.GetAll)
 
 	}
 
