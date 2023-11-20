@@ -76,7 +76,11 @@ func (h *UsersImpl) Login(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	response := dto.LoginResponse{
+		Token: token,
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *UsersImpl) Update(c *gin.Context) {

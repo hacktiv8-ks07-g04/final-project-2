@@ -36,18 +36,13 @@ func (r *UsersImpl) Register(user *entity.User) (*entity.User, error) {
 }
 
 func (r *UsersImpl) Login(email string) (*entity.User, error) {
-	var u *entity.User
+	user := &entity.User{}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Where("email = ?", email).First(&u).Error
-		if err != nil {
-			return errors.New("user not found")
-		}
+	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
 
-		return nil
-	})
-
-	return u, err
+	return user, nil
 }
 
 func (r *UsersImpl) Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error) {

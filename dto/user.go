@@ -47,3 +47,7 @@ type UserResponse struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}

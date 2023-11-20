@@ -11,7 +11,7 @@ import (
 
 type Users interface {
 	Register(payload *dto.RegisterRequest) (*entity.User, error)
-	Login(r *dto.LoginRequest) (string, error)
+	Login(payload *dto.LoginRequest) (string, error)
 	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
 	Delete(id uint) error
 	Get(id uint) (*entity.User, error)
@@ -38,13 +38,13 @@ func (s *UsersImpl) Register(payload *dto.RegisterRequest) (*entity.User, error)
 	return s.userRepository.Register(&user)
 }
 
-func (s *UsersImpl) Login(r *dto.LoginRequest) (string, error) {
-	user, err := s.userRepository.Login(r.Email)
+func (s *UsersImpl) Login(payload *dto.LoginRequest) (string, error) {
+	user, err := s.userRepository.Login(payload.Email)
 	if err != nil {
 		return "", errors.New("email or password is incorrect")
 	}
 
-	if err := utils.VerifyPassword(user.Password, r.Password); err != nil {
+	if err := utils.VerifyPassword(user.Password, payload.Password); err != nil {
 		return "", errors.New("email or password is incorrect")
 	}
 
