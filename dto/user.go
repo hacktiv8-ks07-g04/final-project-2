@@ -35,3 +35,12 @@ type UpdateUserResponse struct {
 	Age       uint      `json:"age"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type UserResponse struct {
+	ID        uint       `json:"id,omitempty"`
+	Username  string     `json:"username"`
+	Email     string     `json:"email"`
+	Age       uint       `json:"age,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}

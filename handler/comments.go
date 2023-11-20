@@ -13,15 +13,26 @@ import (
 
 type Comments interface {
 	Add(c *gin.Context)
+	GetAll(c *gin.Context)
 	Update(c *gin.Context)
 }
 
 type CommentsImpl struct {
-	service service.Comments
+	commentService service.Comments
+	userService    service.Users
+	photoService   service.Photos
 }
 
-func NewComments(service service.Comments) *CommentsImpl {
-	return &CommentsImpl{service}
+func NewComments(
+	commentService service.Comments,
+	photoService service.Photos,
+	userService service.Users,
+) *CommentsImpl {
+	return &CommentsImpl{
+		commentService: commentService,
+		photoService:   photoService,
+		userService:    userService,
+	}
 }
 
 func (h *CommentsImpl) Add(c *gin.Context) {
@@ -39,7 +50,7 @@ func (h *CommentsImpl) Add(c *gin.Context) {
 		UserID:  c.MustGet("userId").(uint),
 	}
 
-	comment, err := h.service.Add(&payload)
+	comment, err := h.commentService.Add(&payload)
 	if err != nil {
 		err := errs.New(http.StatusInternalServerError, "Failed to add comment!")
 		c.Error(err)
@@ -57,6 +68,57 @@ func (h *CommentsImpl) Add(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func (h *CommentsImpl) GetAll(c *gin.Context) {
+	comments, err := h.commentService.GetAll()
+	if err != nil {
+		err := errs.New(http.StatusInternalServerError, "Failed to get comments!")
+		c.Error(err)
+		return
+	}
+
+	response := []dto.CommentResponse{}
+
+	for _, comment := range comments {
+		var err error
+		user, err := h.userService.Get(comment.UserID)
+		if err != nil {
+			err := errs.New(http.StatusInternalServerError, "Failed to get user!")
+			c.Error(err)
+			return
+		}
+
+		photo, err := h.photoService.Get(comment.PhotoID)
+		if err != nil {
+			err := errs.New(http.StatusInternalServerError, "Failed to get photo!")
+			c.Error(err)
+			return
+		}
+
+		response = append(response, dto.CommentResponse{
+			ID:        comment.ID,
+			Message:   comment.Message,
+			PhotoID:   comment.PhotoID,
+			UserID:    comment.UserID,
+			CreatedAt: &comment.CreatedAt,
+			UpdatedAt: &comment.UpdatedAt,
+			User: dto.UserResponse{
+				ID:       user.ID,
+				Username: user.Username,
+				Email:    user.Email,
+			},
+			Photo: dto.PhotoResponse{
+				ID:       photo.ID,
+				Title:    photo.Title,
+				Caption:  photo.Caption,
+				PhotoURL: photo.PhotoURL,
+				UserID:   photo.UserID,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func (h *CommentsImpl) Update(c *gin.Context) {
 	body := dto.UpdateCommentRequest{}
 
@@ -69,7 +131,7 @@ func (h *CommentsImpl) Update(c *gin.Context) {
 	payload := c.MustGet("comment").(*entity.Comment)
 	payload.Message = body.Message
 
-	comment, err := h.service.Update(payload)
+	comment, err := h.commentService.Update(payload)
 	if err != nil {
 		err := errs.New(http.StatusInternalServerError, "Failed to update comment!")
 		c.Error(err)

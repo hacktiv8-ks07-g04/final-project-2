@@ -8,6 +8,7 @@ import (
 
 type Comments interface {
 	Add(payload *dto.Comment) (*entity.Comment, error)
+	GetAll() ([]entity.Comment, error)
 	Update(comment *entity.Comment) (*entity.Comment, error)
 }
 
@@ -27,6 +28,10 @@ func (s *CommentsImpl) Add(payload *dto.Comment) (*entity.Comment, error) {
 	}
 
 	return s.repository.Create(&comment)
+}
+
+func (s *CommentsImpl) GetAll() ([]entity.Comment, error) {
+	return s.repository.GetAll()
 }
 
 func (s *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {

@@ -9,6 +9,7 @@ import (
 type Comments interface {
 	Create(comment *entity.Comment) (*entity.Comment, error)
 	Get(id uint) (*entity.Comment, error)
+	GetAll() ([]entity.Comment, error)
 	Update(comment *entity.Comment) (*entity.Comment, error)
 }
 
@@ -44,4 +45,14 @@ func (r *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) 
 	}
 
 	return comment, nil
+}
+
+func (r *CommentsImpl) GetAll() ([]entity.Comment, error) {
+	comments := []entity.Comment{}
+
+	if err := r.db.Find(&comments).Error; err != nil {
+		return nil, err
+	}
+
+	return comments, nil
 }

@@ -23,10 +23,12 @@ type UpdateCommentRequest struct {
 }
 
 type CommentResponse struct {
-	ID        uint       `json:"id"`
-	Message   string     `json:"message"`
-	PhotoID   uint       `json:"photo_id"`
-	UserID    uint       `json:"user_id"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	ID        uint          `json:"id"`
+	Message   string        `json:"message"`
+	PhotoID   uint          `json:"photo_id"`
+	UserID    uint          `json:"user_id"`
+	CreatedAt *time.Time    `json:"created_at,omitempty"`
+	UpdatedAt *time.Time    `json:"updated_at,omitempty"`
+	User      UserResponse  `json:"user"`
+	Photo     PhotoResponse `json:"photo"`
 }
