@@ -9,6 +9,7 @@ import (
 type Comments interface {
 	Create(comment *entity.Comment) (*entity.Comment, error)
 	Get(id uint) (*entity.Comment, error)
+	Update(comment *entity.Comment) (*entity.Comment, error)
 }
 
 type CommentsImpl struct {
@@ -31,6 +32,14 @@ func (r *CommentsImpl) Get(id uint) (*entity.Comment, error) {
 
 func (r *CommentsImpl) Create(comment *entity.Comment) (*entity.Comment, error) {
 	if err := r.db.Create(&comment).Error; err != nil {
+		return nil, err
+	}
+
+	return comment, nil
+}
+
+func (r *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
+	if err := r.db.Save(&comment).Error; err != nil {
 		return nil, err
 	}
 

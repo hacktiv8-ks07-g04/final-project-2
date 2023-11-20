@@ -8,6 +8,7 @@ import (
 
 type Comments interface {
 	Add(payload *dto.Comment) (*entity.Comment, error)
+	Update(comment *entity.Comment) (*entity.Comment, error)
 }
 
 type CommentsImpl struct {
@@ -26,4 +27,8 @@ func (s *CommentsImpl) Add(payload *dto.Comment) (*entity.Comment, error) {
 	}
 
 	return s.repository.Create(&comment)
+}
+
+func (s *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
+	return s.repository.Update(comment)
 }

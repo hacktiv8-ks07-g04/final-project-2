@@ -18,6 +18,10 @@ type AddCommentRequest struct {
 	PhotoID uint   `json:"photo_id" binding:"required"`
 }
 
+type UpdateCommentRequest struct {
+	Message string `json:"message" binding:"required"`
+}
+
 type CommentResponse struct {
 	ID        uint       `json:"id"`
 	Message   string     `json:"message"`
