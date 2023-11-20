@@ -4,19 +4,16 @@ import (
 	"time"
 )
 
-type RegisterResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Age      uint   `json:"age"`
+type AddPhotoRequest struct {
+	Title    string `json:"title"     binding:"required"`
+	Caption  string `json:"caption"`
+	PhotoURL string `json:"photo_url" binding:"required"`
 }
 
-type UpdateUserResponse struct {
-	ID        uint      `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Age       uint      `json:"age"`
-	UpdatedAt time.Time `json:"updated_at"`
+type UpdatePhotoRequest struct {
+	Title    string `json:"title"`
+	Caption  string `json:"caption"`
+	PhotoURL string `json:"photo_url"`
 }
 
 type AddPhotoResponse struct {

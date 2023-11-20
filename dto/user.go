@@ -1,5 +1,9 @@
 package dto
 
+import (
+	"time"
+)
+
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email"    binding:"required,email"`
@@ -17,14 +21,17 @@ type UpdateUserRequest struct {
 	Email    string `json:"email,omitempty"    binding:"omitempty,email"`
 }
 
-type AddPhotoRequest struct {
-	Title    string `json:"title"     binding:"required"`
-	Caption  string `json:"caption"`
-	PhotoURL string `json:"photo_url" binding:"required"`
+type RegisterResponse struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Age      uint   `json:"age"`
 }
 
-type UpdatePhotoRequest struct {
-	Title    string `json:"title"`
-	Caption  string `json:"caption"`
-	PhotoURL string `json:"photo_url"`
+type UpdateUserResponse struct {
+	ID        uint      `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Age       uint      `json:"age"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
