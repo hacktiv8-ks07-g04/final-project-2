@@ -62,7 +62,7 @@ func Init() *gin.Engine {
 	socialMediasHandler := handler.NewSocialMedias(socialMediasService, usersService)
 
 	// Authorization
-	authService := service.NewAuthorization(photosRepo, commentsRepo)
+	authService := service.NewAuthorization(photosRepo, commentsRepo, socialMediasRepo)
 
 	// Routes
 	usersRouter := r.Group("/users")
@@ -109,6 +109,7 @@ func Init() *gin.Engine {
 	{
 		socialMediasRouter.POST("/", socialMediasHandler.Add)
 		socialMediasRouter.GET("/", socialMediasHandler.GetAll)
+		socialMediasRouter.PUT("/:socialMediaId", authService.SocialMediaAuthorization(), socialMediasHandler.Update)
 	}
 
 	return r

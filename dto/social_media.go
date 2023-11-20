@@ -16,6 +16,11 @@ type AddSocialMediaRequest struct {
 	SocialMediaURL string `json:"social_media_url" binding:"required"`
 }
 
+type UpdateSocialMediaRequest struct {
+	Name           string `json:"name,omitempty"`
+	SocialMediaURL string `json:"social_media_url,omitempty"`
+}
+
 type SocialMediaResponse struct {
 	ID             uint          `json:"id"`
 	Name           string        `json:"name"`
