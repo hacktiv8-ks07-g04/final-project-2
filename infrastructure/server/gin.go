@@ -57,9 +57,12 @@ func Init() *gin.Engine {
 	photosRepo := repository.NewPhotos(db)
 	photosService := service.NewPhotos(photosRepo)
 	photosHandler := handler.NewPhotos(photosService)
-	photosRouter := r.Group("/photos")
+	photosRouter := r.Group("/photos").Use(middleware.Authentication())
 	{
 		_, _ = photosHandler, photosRouter
+
+		photosRouter.POST("/", photosHandler.Add)
+
 	}
 
 	// Comments

@@ -7,11 +7,11 @@ import (
 
 type Photo struct {
 	gorm.Model
-	Title    string    `gorm:"not null"           valid:"required"`
+	Title    string    `gorm:"not null"                                      valid:"required"`
 	Caption  string    `gorm:"not null"`
-	PhotoURL string    `gorm:"not null"           valid:"required"`
-	UserID   uint      `gorm:"not null; type:int"`
-	Comments []Comment `gorm:"foreignKey:UserID"`
+	PhotoURL string    `gorm:"not null"                                      valid:"required"`
+	UserID   uint      `gorm:"not null"`
+	Comments []Comment `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE"`
 }
 
 func (p *Photo) BeforeCreate(tx *gorm.DB) error {

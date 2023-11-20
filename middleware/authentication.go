@@ -16,7 +16,10 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user", claims)
+		user := claims.(map[string]interface{})
+		c.Set("user", user)
+		c.Set("userId", user["id"])
+
 		c.Next()
 	}
 }
