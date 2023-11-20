@@ -31,14 +31,6 @@ type UpdateUserRequest struct {
 	Email    string `json:"email,omitempty"    binding:"email"`
 }
 
-type UpdateUserResponse struct {
-	ID        uint      `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Age       uint      `json:"age"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
 type UserResponse struct {
 	ID        uint       `json:"id,omitempty"`
 	Username  string     `json:"username"`

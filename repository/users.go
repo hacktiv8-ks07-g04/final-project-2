@@ -6,13 +6,12 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
-	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
 )
 
 type Users interface {
 	Register(user *entity.User) (*entity.User, error)
 	Login(email string) (*entity.User, error)
-	Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error)
+	Update(user *entity.User) (*entity.User, error)
 	Delete(id uint) error
 	Get(id uint) (*entity.User, error)
 }
@@ -45,22 +44,12 @@ func (r *UsersImpl) Login(email string) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *UsersImpl) Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error) {
-	var u *entity.User
+func (r *UsersImpl) Update(user *entity.User) (*entity.User, error) {
+	if err := r.db.Save(&user).Error; err != nil {
+		return nil, err
+	}
 
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&entity.User{}).Where("id = ?", id).First(&u).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Model(&u).Updates(data).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	return u, err
+	return user, nil
 }
 
 func (r *UsersImpl) Delete(id uint) error {

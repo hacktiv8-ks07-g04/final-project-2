@@ -85,8 +85,6 @@ func (h *UsersImpl) Login(c *gin.Context) {
 
 func (h *UsersImpl) Update(c *gin.Context) {
 	body := dto.UpdateUserRequest{}
-	header := c.MustGet("user").(map[string]interface{})
-	userID := header["id"].(uint)
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		err := errs.New(http.StatusBadRequest, "Invalid request body!")
@@ -94,7 +92,13 @@ func (h *UsersImpl) Update(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Update(userID, &body)
+	payload := dto.User{
+		ID:       c.MustGet("userId").(uint),
+		Username: body.Username,
+		Email:    body.Email,
+	}
+
+	user, err := h.userService.Update(&payload)
 	if err != nil {
 		switch err.Error() {
 		case "user not found":
@@ -108,12 +112,12 @@ func (h *UsersImpl) Update(c *gin.Context) {
 		}
 	}
 
-	response := dto.UpdateUserResponse{
+	response := dto.UserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
 		Username:  user.Username,
 		Age:       user.Age,
-		UpdatedAt: user.UpdatedAt,
+		UpdatedAt: &user.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, response)

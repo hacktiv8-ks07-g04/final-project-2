@@ -12,7 +12,7 @@ import (
 type Users interface {
 	Register(payload *dto.RegisterRequest) (*entity.User, error)
 	Login(payload *dto.LoginRequest) (string, error)
-	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
+	Update(payload *dto.User) (*entity.User, error)
 	Delete(id uint) error
 	Get(id uint) (*entity.User, error)
 }
@@ -56,13 +56,16 @@ func (s *UsersImpl) Login(payload *dto.LoginRequest) (string, error) {
 	return token, nil
 }
 
-func (s *UsersImpl) Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error) {
-	user, err := s.userRepository.Update(id, r)
+func (s *UsersImpl) Update(payload *dto.User) (*entity.User, error) {
+	user, err := s.userRepository.Get(payload.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, err
+	user.Email = payload.Email
+	user.Username = payload.Username
+
+	return s.userRepository.Update(user)
 }
 
 func (s *UsersImpl) Delete(id uint) error {
