@@ -7,69 +7,44 @@ import (
 )
 
 type Photos interface {
-	Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, error)
-	Get(photoId uint) (*entity.Photo, error)
+	Add(payload *dto.Photo) (*entity.Photo, error)
+	Get(id uint) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
-	Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error)
-	Delete(photoId uint) error
+	Update(photo *entity.Photo, updatedData *dto.Photo) (*entity.Photo, error)
+	Delete(photo *entity.Photo) error
 }
 
 type PhotosImpl struct {
-	repository repository.Photos
+	photoRepository repository.Photos
 }
 
 func NewPhotos(repository repository.Photos) *PhotosImpl {
 	return &PhotosImpl{repository}
 }
 
-func (s *PhotosImpl) Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, error) {
+func (s *PhotosImpl) Add(payload *dto.Photo) (*entity.Photo, error) {
 	photo := entity.Photo{
-		Title:    r.Title,
-		Caption:  r.Caption,
-		PhotoURL: r.PhotoURL,
-		UserID:   userID,
+		Title:    payload.Title,
+		Caption:  payload.Caption,
+		PhotoURL: payload.PhotoURL,
+		UserID:   payload.UserID,
 	}
 
-	result, err := s.repository.Add(&photo)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return s.photoRepository.Add(&photo)
 }
 
-func (s *PhotosImpl) Get(photoId uint) (*entity.Photo, error) {
-	result, err := s.repository.Get(photoId)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+func (s *PhotosImpl) Get(id uint) (*entity.Photo, error) {
+	return s.photoRepository.Get(id)
 }
 
 func (s *PhotosImpl) GetAll() ([]entity.Photo, error) {
-	result, err := s.repository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return s.photoRepository.GetAll()
 }
 
-func (s *PhotosImpl) Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error) {
-	result, err := s.repository.Update(photoId, r)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+func (s *PhotosImpl) Update(photo *entity.Photo, updatedData *dto.Photo) (*entity.Photo, error) {
+	return s.photoRepository.Update(photo, updatedData)
 }
 
-func (s *PhotosImpl) Delete(photoId uint) error {
-	err := s.repository.Delete(photoId)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (s *PhotosImpl) Delete(photo *entity.Photo) error {
+	return s.photoRepository.Delete(photo)
 }

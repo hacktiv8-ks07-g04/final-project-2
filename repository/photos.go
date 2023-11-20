@@ -11,10 +11,10 @@ import (
 
 type Photos interface {
 	Add(photo *entity.Photo) (*entity.Photo, error)
-	Get(photoId uint) (*entity.Photo, error)
+	Get(id uint) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
-	Update(photoId uint, data *dto.UpdatePhotoRequest) (*entity.Photo, error)
-	Delete(photoId uint) error
+	Update(photo *entity.Photo, updatedData *dto.Photo) (*entity.Photo, error)
+	Delete(photo *entity.Photo) error
 }
 
 type PhotosImpl struct {
@@ -26,56 +26,43 @@ func NewPhotos(db *gorm.DB) *PhotosImpl {
 }
 
 func (r *PhotosImpl) Add(photo *entity.Photo) (*entity.Photo, error) {
-	err := r.db.Create(&photo).Error
-	if err != nil {
+	if err := r.db.Create(&photo).Error; err != nil {
 		return nil, err
 	}
 
-	return photo, err
+	return photo, nil
 }
 
-func (r *PhotosImpl) Get(photoId uint) (*entity.Photo, error) {
-	var photo entity.Photo
-	err := r.db.First(&photo, photoId).Error
-	if err != nil {
+func (r *PhotosImpl) Get(id uint) (*entity.Photo, error) {
+	photo := entity.Photo{}
+
+	if err := r.db.First(&photo, id).Error; err != nil {
 		return nil, errors.New("photo not found")
 	}
 
-	return &photo, err
+	return &photo, nil
 }
 
 func (r *PhotosImpl) GetAll() ([]entity.Photo, error) {
-	var photos []entity.Photo
-	err := r.db.Find(&photos).Error
-	if err != nil {
+	photos := []entity.Photo{}
+
+	if err := r.db.Find(&photos).Error; err != nil {
 		return nil, errors.New("failed to get photos")
 	}
 
-	return photos, err
+	return photos, nil
 }
 
-func (r *PhotosImpl) Update(
-	photoId uint,
-	data *dto.UpdatePhotoRequest,
-) (*entity.Photo, error) {
-	var photo *entity.Photo
-	var err error
-
-	photo, err = r.Get(photoId)
-	if err != nil {
+func (r *PhotosImpl) Update(photo *entity.Photo, updatedData *dto.Photo) (*entity.Photo, error) {
+	if err := r.db.Model(&photo).Updates(&updatedData).Error; err != nil {
 		return nil, err
 	}
 
-	if err := r.db.Model(&photo).Updates(data).Error; err != nil {
-		return nil, err
-	}
-
-	return photo, err
+	return photo, nil
 }
 
-func (r *PhotosImpl) Delete(photoId uint) error {
-	err := r.db.Delete(&entity.Photo{}, photoId).Error
-	if err != nil {
+func (r *PhotosImpl) Delete(photo *entity.Photo) error {
+	if err := r.db.Delete(&photo).Error; err != nil {
 		return errors.New("failed to delete photo")
 	}
 
