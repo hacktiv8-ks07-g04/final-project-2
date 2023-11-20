@@ -10,6 +10,7 @@ import (
 
 type SocialMedias interface {
 	Get(id uint) (*entity.SocialMedia, error)
+	Add(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error)
 }
 
 type SocialMediasImpl struct {
@@ -30,4 +31,12 @@ func (r *SocialMediasImpl) Get(id uint) (*entity.SocialMedia, error) {
 	}
 
 	return &socialMedia, nil
+}
+
+func (r *SocialMediasImpl) Add(socialMedia *entity.SocialMedia) (*entity.SocialMedia, error) {
+	if err := r.db.Create(&socialMedia).Error; err != nil {
+		return nil, err
+	}
+
+	return socialMedia, nil
 }

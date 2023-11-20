@@ -105,9 +105,9 @@ func Init() *gin.Engine {
 		)
 	}
 
-	socialMediasRouter := r.Group("/socialmedias")
+	socialMediasRouter := r.Group("/socialmedias").Use(middleware.Authentication())
 	{
-		_, _ = socialMediasHandler, socialMediasRouter
+		socialMediasRouter.POST("/", socialMediasHandler.Add)
 	}
 
 	return r
