@@ -18,11 +18,13 @@ type Users interface {
 }
 
 type UsersImpl struct {
-	service service.Users
+	userService service.Users
 }
 
-func NewUsers(service service.Users) *UsersImpl {
-	return &UsersImpl{service}
+func NewUsers(userService service.Users) *UsersImpl {
+	return &UsersImpl{
+		userService: userService,
+	}
 }
 
 func (h *UsersImpl) Register(c *gin.Context) {
@@ -34,14 +36,14 @@ func (h *UsersImpl) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Register(&body)
+	user, err := h.userService.Register(&body)
 	if err != nil {
 		err := errs.New(http.StatusInternalServerError, err.Error())
 		c.Error(err)
 		return
 	}
 
-	response := dto.RegisterResponse{
+	response := dto.UserResponse{
 		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
@@ -60,7 +62,7 @@ func (h *UsersImpl) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.Login(&body)
+	token, err := h.userService.Login(&body)
 	if err != nil {
 		switch err.Error() {
 		case "email or password is incorrect":
@@ -88,7 +90,7 @@ func (h *UsersImpl) Update(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Update(userID, &body)
+	user, err := h.userService.Update(userID, &body)
 	if err != nil {
 		switch err.Error() {
 		case "user not found":
@@ -117,7 +119,7 @@ func (h *UsersImpl) Delete(c *gin.Context) {
 	header := c.MustGet("user").(map[string]interface{})
 	userID := header["id"].(uint)
 
-	err := h.service.Delete(userID)
+	err := h.userService.Delete(userID)
 	if err != nil {
 		switch err.Error() {
 		case "user not found":

@@ -10,7 +10,7 @@ import (
 )
 
 type Users interface {
-	Register(r *dto.RegisterRequest) (*entity.User, error)
+	Register(payload *dto.RegisterRequest) (*entity.User, error)
 	Login(r *dto.LoginRequest) (string, error)
 	Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error)
 	Delete(id uint) error
@@ -18,31 +18,28 @@ type Users interface {
 }
 
 type UsersImpl struct {
-	repository repository.Users
+	userRepository repository.Users
 }
 
-func NewUsers(repository repository.Users) *UsersImpl {
-	return &UsersImpl{repository}
+func NewUsers(userRpository repository.Users) *UsersImpl {
+	return &UsersImpl{
+		userRepository: userRpository,
+	}
 }
 
-func (s *UsersImpl) Register(r *dto.RegisterRequest) (*entity.User, error) {
+func (s *UsersImpl) Register(payload *dto.RegisterRequest) (*entity.User, error) {
 	user := entity.User{
-		Username: r.Username,
-		Email:    r.Email,
-		Password: r.Password,
-		Age:      r.Age,
+		Username: payload.Username,
+		Email:    payload.Email,
+		Password: payload.Password,
+		Age:      payload.Age,
 	}
 
-	u, err := s.repository.Register(&user)
-	if err != nil {
-		return nil, err
-	}
-
-	return u, err
+	return s.userRepository.Register(&user)
 }
 
 func (s *UsersImpl) Login(r *dto.LoginRequest) (string, error) {
-	user, err := s.repository.Login(r.Email)
+	user, err := s.userRepository.Login(r.Email)
 	if err != nil {
 		return "", errors.New("email or password is incorrect")
 	}
@@ -60,7 +57,7 @@ func (s *UsersImpl) Login(r *dto.LoginRequest) (string, error) {
 }
 
 func (s *UsersImpl) Update(id uint, r *dto.UpdateUserRequest) (*entity.User, error) {
-	user, err := s.repository.Update(id, r)
+	user, err := s.userRepository.Update(id, r)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +66,7 @@ func (s *UsersImpl) Update(id uint, r *dto.UpdateUserRequest) (*entity.User, err
 }
 
 func (s *UsersImpl) Delete(id uint) error {
-	err := s.repository.Delete(id)
+	err := s.userRepository.Delete(id)
 	if err != nil {
 		return err
 	}
@@ -78,7 +75,7 @@ func (s *UsersImpl) Delete(id uint) error {
 }
 
 func (s *UsersImpl) Get(id uint) (*entity.User, error) {
-	user, err := s.repository.Get(id)
+	user, err := s.userRepository.Get(id)
 	if err != nil {
 		return nil, err
 	}

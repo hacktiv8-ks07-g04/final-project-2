@@ -10,7 +10,7 @@ import (
 )
 
 type Users interface {
-	Register(u *entity.User) (*entity.User, error)
+	Register(user *entity.User) (*entity.User, error)
 	Login(email string) (*entity.User, error)
 	Update(id uint, data *dto.UpdateUserRequest) (*entity.User, error)
 	Delete(id uint) error
@@ -22,20 +22,17 @@ type UsersImpl struct {
 }
 
 func NewUsers(db *gorm.DB) *UsersImpl {
-	return &UsersImpl{db}
+	return &UsersImpl{
+		db: db,
+	}
 }
 
-func (r *UsersImpl) Register(u *entity.User) (*entity.User, error) {
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Create(&u).Error
-		if err != nil {
-			return err
-		}
+func (r *UsersImpl) Register(user *entity.User) (*entity.User, error) {
+	if err := r.db.Create(&user).Error; err != nil {
+		return nil, err
+	}
 
-		return nil
-	})
-
-	return u, err
+	return user, nil
 }
 
 func (r *UsersImpl) Login(email string) (*entity.User, error) {

@@ -4,6 +4,16 @@ import (
 	"time"
 )
 
+type User struct {
+	ID        uint       `json:"id,omitempty"`
+	Username  string     `json:"username"              binding:"required"`
+	Email     string     `json:"email"                 binding:"required,email"`
+	Password  string     `json:"password,omitempty"    binding:"required,min=6"`
+	Age       uint       `json:"age"                   binding:"required"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email"    binding:"required,email"`
@@ -12,20 +22,13 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email"    binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UpdateUserRequest struct {
 	Username string `json:"username,omitempty"`
-	Email    string `json:"email,omitempty"    binding:"omitempty,email"`
-}
-
-type RegisterResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Age      uint   `json:"age"`
+	Email    string `json:"email,omitempty"    binding:"email"`
 }
 
 type UpdateUserResponse struct {
