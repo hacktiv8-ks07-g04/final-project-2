@@ -5,8 +5,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/dto"
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
+	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
 )
 
 type Photos interface {

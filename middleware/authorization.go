@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/hacktiv8-ks07-g04/final-project-2/domain/errs"
+	"github.com/hacktiv8-ks07-g04/final-project-2/pkg/errs"
 	"github.com/hacktiv8-ks07-g04/final-project-2/repository"
 )
 
