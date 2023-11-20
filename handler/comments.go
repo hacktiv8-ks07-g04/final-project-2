@@ -102,12 +102,12 @@ func (h *CommentsImpl) GetAll(c *gin.Context) {
 			UserID:    comment.UserID,
 			CreatedAt: &comment.CreatedAt,
 			UpdatedAt: &comment.UpdatedAt,
-			User: dto.UserResponse{
+			User: &dto.UserResponse{
 				ID:       user.ID,
 				Username: user.Username,
 				Email:    user.Email,
 			},
-			Photo: dto.PhotoResponse{
+			Photo: &dto.PhotoResponse{
 				ID:       photo.ID,
 				Title:    photo.Title,
 				Caption:  photo.Caption,
@@ -129,10 +129,13 @@ func (h *CommentsImpl) Update(c *gin.Context) {
 		return
 	}
 
-	payload := c.MustGet("comment").(*entity.Comment)
-	payload.Message = body.Message
+	comment := c.MustGet("comment").(*entity.Comment)
 
-	comment, err := h.commentService.Update(payload)
+	payload := &dto.Comment{
+		Message: body.Message,
+	}
+
+	newComment, err := h.commentService.Update(comment, payload)
 	if err != nil {
 		err := errs.New(http.StatusInternalServerError, "Failed to update comment!")
 		c.Error(err)
@@ -140,11 +143,11 @@ func (h *CommentsImpl) Update(c *gin.Context) {
 	}
 
 	response := dto.CommentResponse{
-		ID:        comment.ID,
-		Message:   comment.Message,
-		PhotoID:   comment.PhotoID,
-		UserID:    comment.UserID,
-		UpdatedAt: &comment.UpdatedAt,
+		ID:        newComment.ID,
+		Message:   newComment.Message,
+		PhotoID:   newComment.PhotoID,
+		UserID:    newComment.UserID,
+		UpdatedAt: &newComment.UpdatedAt,
 	}
 
 	c.JSON(http.StatusOK, response)

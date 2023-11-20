@@ -19,18 +19,18 @@ type AddCommentRequest struct {
 }
 
 type UpdateCommentRequest struct {
-	Message string `json:"message" binding:"required"`
+	Message string `json:"message"`
 }
 
 type CommentResponse struct {
-	ID        uint          `json:"id"`
-	Message   string        `json:"message"`
-	PhotoID   uint          `json:"photo_id"`
-	UserID    uint          `json:"user_id"`
-	CreatedAt *time.Time    `json:"created_at,omitempty"`
-	UpdatedAt *time.Time    `json:"updated_at,omitempty"`
-	User      UserResponse  `json:"user"`
-	Photo     PhotoResponse `json:"photo"`
+	ID        uint           `json:"id"`
+	Message   string         `json:"message"`
+	PhotoID   uint           `json:"photo_id"`
+	UserID    uint           `json:"user_id"`
+	CreatedAt *time.Time     `json:"created_at,omitempty"`
+	UpdatedAt *time.Time     `json:"updated_at,omitempty"`
+	User      *UserResponse  `json:"user,omitempty"`
+	Photo     *PhotoResponse `json:"photo,omitempty"`
 }
 
 type DeleteCommentResponse struct {

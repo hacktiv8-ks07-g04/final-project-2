@@ -6,13 +6,14 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/hacktiv8-ks07-g04/final-project-2/domain/entity"
+	"github.com/hacktiv8-ks07-g04/final-project-2/dto"
 )
 
 type Comments interface {
 	Create(comment *entity.Comment) (*entity.Comment, error)
 	Get(id uint) (*entity.Comment, error)
 	GetAll() ([]entity.Comment, error)
-	Update(comment *entity.Comment) (*entity.Comment, error)
+	Update(comment *entity.Comment, updatedData *dto.Comment) (*entity.Comment, error)
 	Delete(comment *entity.Comment) error
 }
 
@@ -42,8 +43,8 @@ func (r *CommentsImpl) Create(comment *entity.Comment) (*entity.Comment, error) 
 	return comment, nil
 }
 
-func (r *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
-	if err := r.db.Save(&comment).Error; err != nil {
+func (r *CommentsImpl) Update(comment *entity.Comment, updatedData *dto.Comment) (*entity.Comment, error) {
+	if err := r.db.Model(&comment).Updates(&updatedData).Error; err != nil {
 		return nil, err
 	}
 

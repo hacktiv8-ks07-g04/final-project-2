@@ -9,7 +9,7 @@ import (
 type Comments interface {
 	Add(payload *dto.Comment) (*entity.Comment, error)
 	GetAll() ([]entity.Comment, error)
-	Update(comment *entity.Comment) (*entity.Comment, error)
+	Update(comment *entity.Comment, updatedData *dto.Comment) (*entity.Comment, error)
 	Delete(comment *entity.Comment) error
 }
 
@@ -35,8 +35,8 @@ func (s *CommentsImpl) GetAll() ([]entity.Comment, error) {
 	return s.repository.GetAll()
 }
 
-func (s *CommentsImpl) Update(comment *entity.Comment) (*entity.Comment, error) {
-	return s.repository.Update(comment)
+func (s *CommentsImpl) Update(comment *entity.Comment, updatedData *dto.Comment) (*entity.Comment, error) {
+	return s.repository.Update(comment, updatedData)
 }
 
 func (s *CommentsImpl) Delete(comment *entity.Comment) error {
