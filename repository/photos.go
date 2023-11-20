@@ -14,6 +14,7 @@ type Photos interface {
 	Get(photoId uint) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
 	Update(photoId uint, data *dto.UpdatePhotoRequest) (*entity.Photo, error)
+	Delete(photoId uint) error
 }
 
 type PhotosImpl struct {
@@ -70,4 +71,13 @@ func (r *PhotosImpl) Update(
 	}
 
 	return photo, err
+}
+
+func (r *PhotosImpl) Delete(photoId uint) error {
+	err := r.db.Delete(&entity.Photo{}, photoId).Error
+	if err != nil {
+		return errors.New("failed to delete photo")
+	}
+
+	return nil
 }

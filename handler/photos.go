@@ -15,6 +15,7 @@ type Photos interface {
 	Add(c *gin.Context)
 	GetAll(c *gin.Context)
 	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type PhotosImpl struct {
@@ -137,4 +138,31 @@ func (h *PhotosImpl) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *PhotosImpl) Delete(c *gin.Context) {
+	photoID := c.Param("photoId")
+
+	if photoID == "" {
+		err := errs.New(http.StatusBadRequest, "photo id is required in params")
+		c.Error(err)
+		return
+	}
+
+	photoIdInt, err := strconv.Atoi(photoID)
+	if err != nil {
+		err := errs.New(http.StatusBadRequest, "photo id must be a number")
+		c.Error(err)
+		return
+	}
+
+	if err := h.photoService.Delete(uint(photoIdInt)); err != nil {
+		err := errs.New(http.StatusInternalServerError, err.Error())
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Your photo has been successfully deleted",
+	})
 }

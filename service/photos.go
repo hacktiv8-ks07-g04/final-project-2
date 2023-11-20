@@ -10,6 +10,7 @@ type Photos interface {
 	Add(userID uint, r *dto.AddPhotoRequest) (*entity.Photo, error)
 	GetAll() ([]entity.Photo, error)
 	Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Photo, error)
+	Delete(photoId uint) error
 }
 
 type PhotosImpl struct {
@@ -52,4 +53,13 @@ func (s *PhotosImpl) Update(photoId uint, r *dto.UpdatePhotoRequest) (*entity.Ph
 	}
 
 	return result, nil
+}
+
+func (s *PhotosImpl) Delete(photoId uint) error {
+	err := s.repository.Delete(photoId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

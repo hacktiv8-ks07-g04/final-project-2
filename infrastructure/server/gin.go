@@ -66,6 +66,11 @@ func Init() *gin.Engine {
 			middleware.PhotoAuthorization(photosRepo),
 			photosHandler.Update,
 		)
+		photosRouter.DELETE(
+			"/:photoId",
+			middleware.PhotoAuthorization(photosRepo),
+			photosHandler.Delete,
+		)
 	}
 
 	// Comments
